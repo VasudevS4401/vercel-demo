@@ -1,16 +1,17 @@
-# api/index.py
+import json
+import os
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 from typing import List
 
 app = FastAPI()
 
-marks_data = {
-    "Alice": 90,
-    "Bob": 85,
-    "FYgbkNaLi": 77,
-    "Charlie": 92
-}
+# Read the marks.json using a safe path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(current_dir, "marks.json")
+
+with open(json_path, "r") as f:
+    marks_data = json.load(f)
 
 @app.get("/api")
 def get_marks(name: List[str] = Query([])):
