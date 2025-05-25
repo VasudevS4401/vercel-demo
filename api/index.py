@@ -1,18 +1,18 @@
-from fastapi import FastAPI, Request
+# api/index.py
+from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
-import json
-import os
+from typing import List
 
 app = FastAPI()
 
-# Load JSON once at startup
-json_path = os.path.join(os.path.dirname(__file__), "marks.json")
-with open(json_path, "r") as file:
-    marks_data = json.load(file)
+marks_data = {
+    "Alice": 90,
+    "Bob": 85,
+    "FYgbkNaLi": 77,
+    "Charlie": 92
+}
 
 @app.get("/api")
-async def get_marks(request: Request):
-    names = request.query_params.getlist("name")
-    result = [marks_data.get(name, None) for name in names]
-    return JSONResponse(content={"marks": result})
-
+def get_marks(name: List[str] = Query([])):
+    results = [marks_data.get(n, "Not Found") for n in name]
+    return JSONResponse(content={"results": results})
