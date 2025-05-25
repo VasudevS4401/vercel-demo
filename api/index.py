@@ -20,12 +20,10 @@ with open(json_path, "r") as file:
 
 @app.get("/api")
 def get_marks(name: List[str] = Query([])):
-    results = []
-    for n in name:
-        for entry in data:
-            if entry["name"] == n:
-                results.append({"name": n, "marks": entry["marks"]})
-                break
-        else:
-            results.append({"name": n, "marks": None})
-    return {"results": results}
+    # Create a lookup dict for fast access
+    marks_lookup = {entry["name"]: entry["marks"] for entry in data}
+
+    # Collect marks in the order of input names
+    result_marks = [marks_lookup.get(n, None) for n in name]
+
+    return {"marks": result_marks}
