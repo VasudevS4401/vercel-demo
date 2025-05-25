@@ -1,27 +1,31 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import json
 import os
 
 app = FastAPI()
 
-# Load the JSON file
-def load_marks():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(current_dir, "marks.json")) as f:
-        return json.load(f)
+# Enable CORS: Allow all origins (for demo/testing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods, including GET
+    allow_headers=["*"]
+)
 
-data = load_marks()
+# Load the marks data once on startup
+with open("marks.json", "r") as file:
+    data = json.load(file)
 
 @app.get("/api")
-async def get_marks(request: Request):
-    names = request.query_params.getlist("name")
+def get_marks(name: list[str] = []):
     results = []
-    for name in names:
-        # Search through the list for matching name
-        mark_entry = next((item for item in data if item["name"] == name), None)
-        if mark_entry:
-            results.append(mark_entry["marks"])
+    for n in name:
+        for entry in data:
+            if entry["name"] == n:
+                results.append({"name": n, "marks": entry["marks"]})
+                break
         else:
-            results.append(None)  # or 0, or -1, or "not found"
-    return JSONResponse(content={ "marks" : results})
+            results.append({"name": n, "marks": None})  # Not found
+    return {"marks": results}
