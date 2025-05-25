@@ -24,4 +24,4 @@ async def get_marks(request: Request):
             results.append(mark_entry["marks"])
         else:
             results.append(None)  # or 0, or -1, or "not found"
-    return JSONResponse(content={"marks": results})
+    return JSONResponse(content={ "marks" : results})
